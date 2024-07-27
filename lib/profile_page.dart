@@ -18,8 +18,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final ImagePicker _picker = ImagePicker();
   String? _imageUrl;
-  String? _username;
+  String? _name;
   String? _email;
+  String? _mobile;
 
   @override
   void initState() {
@@ -32,34 +33,41 @@ class _ProfilePageState extends State<ProfilePage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         setState(() {
-          _username = 'No user is authenticated';
+          _name = 'No user is authenticated';
           _email = 'No user is authenticated';
+          _mobile = 'No user is authenticated';
         });
         return;
       }
 
-      DocumentSnapshot userData = await FirebaseFirestore.instance
+      // Fetch the document from Firestore for the current user
+      DocumentSnapshot<Map<String, dynamic>> userData = await FirebaseFirestore
+          .instance
           .collection('users')
           .doc(user.uid)
           .get();
 
       if (userData.exists) {
+        print('User Data: ${userData.data()}'); // Log the data
         setState(() {
-          _username = userData['username'];
-          _email = userData['email'];
-          _imageUrl = userData['profile_picture'];
+          _name = userData.data()?['username'] ?? 'No Name';
+          _email = userData.data()?['email'] ?? 'No Email';
+          _mobile = userData.data()?['mobile'] ?? 'No Mobile';
+          _imageUrl = userData.data()?['profile_picture'] ?? null;
         });
       } else {
         setState(() {
-          _username = 'No user data found';
+          _name = 'No user data found';
           _email = 'No user data found';
+          _mobile = 'No user data found';
         });
       }
     } catch (e) {
       print('Error fetching user data: $e');
       setState(() {
-        _username = 'Error fetching data';
+        _name = 'Error fetching data';
         _email = 'Error fetching data';
+        _mobile = 'Error fetching data';
       });
     }
   }
@@ -76,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       String fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
       Reference storageReference =
-      FirebaseStorage.instance.ref().child('profile_images/$fileName');
+          FirebaseStorage.instance.ref().child('profile_images/$fileName');
       UploadTask uploadTask = storageReference.putFile(file);
       TaskSnapshot taskSnapshot = await uploadTask;
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
@@ -135,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     backgroundImage: _imageUrl != null
                         ? NetworkImage(_imageUrl!)
                         : const AssetImage('assets/images/image1.png')
-                    as ImageProvider,
+                            as ImageProvider,
                   ),
                   Positioned(
                     bottom: 0,
@@ -161,12 +169,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 10),
               Text(
-                _username ?? 'Loading...',
+                _name ?? 'Loading...',
                 style: Theme.of(context).textTheme.headline6,
               ),
               const SizedBox(height: 5),
               Text(
                 _email ?? 'Loading...',
+                style: Theme.of(context).textTheme.subtitle2,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                _mobile ?? 'Loading...',
                 style: Theme.of(context).textTheme.subtitle2,
               ),
               const SizedBox(height: 20),
@@ -176,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Theme.of(context).primaryColor,
                   shape: const StadiumBorder(),
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
                 child: const Text(
                   'Edit your profile',
@@ -225,12 +238,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileMenu(
-      BuildContext context, {
-        required String title,
-        required IconData icon,
-        required VoidCallback onTap,
-        Color? textColor,
-      }) {
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? textColor,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(
@@ -254,9 +267,14 @@ class _ProfilePageState extends State<ProfilePage> {
             child: const Text('No'),
           ),
           ElevatedButton(
-            onPressed: () {
-              // Implement logout functionality here
-              Navigator.pop(context);
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RootPage(),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -267,4 +285,10 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: ProfilePage(),
+  ));
 }
