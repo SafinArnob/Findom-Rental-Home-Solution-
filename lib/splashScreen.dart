@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-//import 'root_page.dart'; // Corrected import for homePage
 import 'auth_pages/sign_up_page.dart';
 
 class SplashScreen extends StatefulWidget {

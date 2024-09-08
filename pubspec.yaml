@@ -45,6 +45,8 @@ dependencies:
   cloud_firestore: ^4.17.5
   firebase_storage: ^11.7.7
   gallery_picker: ^0.5.1
+  card_swiper: ^3.0.1
+  font_awesome_flutter: ^10.7.0
 
 
 
