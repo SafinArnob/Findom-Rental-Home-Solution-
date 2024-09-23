@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'details_page.dart';
-import 'offer_list.dart';
+import 'offer_list.dart'; // Ensure this file exists and is properly set up
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -45,17 +45,17 @@ class HomePage extends StatelessWidget {
                     VxSwiper.builder(
                       aspectRatio: 16 / 10,
                       autoPlay: true,
-                      height: 200,
+                      height: 150,
                       enlargeCenterPage: true,
-                      itemCount: limitedOffres.length,
+                      itemCount: limitedOffres
+                          .length, // Ensure limitedOffres is defined
                       itemBuilder: (context, index) {
                         final item = limitedOffres[index];
                         return GestureDetector(
                           onTap: () {},
                           child: Image.asset(
-                            item[
-                                'imagePath'], // Assuming imagePath is a local asset path
-                            fit: BoxFit.cover,
+                            item['imagePath'], // Ensure this path is valid
+                            fit: BoxFit.contain, // Change to BoxFit.contain
                           )
                               .box
                               .rounded
@@ -86,13 +86,16 @@ class HomePage extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => DetailsPage(
                                   imagePath: item['images']
-                                      [0], // Adjust as per your data structure
-                                  name: item['houseType'],
-                                  location: item['location'],
-                                  bedrooms: item[
-                                      'bedrooms'], // Replace with actual data field names
-                                  bathrooms: item['bathrooms'],
-                                  balconies: item['balconies'],
+                                      [0], // Firestore image
+                                  name: item['houseType'], // Firestore field
+                                  location: item['location'], // Firestore field
+                                  bedrooms: item['bedrooms'], // Firestore field
+                                  bathrooms:
+                                      item['bathrooms'], // Firestore field
+                                  balconies:
+                                      item['balconies'], // Firestore field
+                                  description:
+                                      item['description'], // Pass description
                                 ),
                               ),
                             );
@@ -100,8 +103,7 @@ class HomePage extends StatelessWidget {
                           child: Column(
                             children: [
                               Image.network(
-                                item['images'][
-                                    0], // Adjust this based on your Firestore structure
+                                item['images'][0], // Ensure this URL is valid
                                 height: 200,
                                 width: 200,
                                 fit: BoxFit.fill,

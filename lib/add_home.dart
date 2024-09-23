@@ -16,21 +16,23 @@ class _AddHomePageState extends State<AddHomePage> {
   int _bathrooms = 1;
   int _balconies = 0;
   List<File> _images = [];
-
   final picker = ImagePicker();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   bool _uploading = false;
 
-  Future<void> _getImage(ImageSource source) async {
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
+  // Function to pick multiple images
+  Future<void> _getImages() async {
+    final pickedFiles = await picker.pickMultiImage(); // Use pickMultiImage
+    if (pickedFiles != null) {
       setState(() {
-        _images.add(File(pickedFile.path));
+        _images.addAll(
+            pickedFiles.map((pickedFile) => File(pickedFile.path)).toList());
       });
     }
   }
 
+  // Function to upload details including images and description to Firestore
   Future<void> _uploadDetails() async {
     setState(() {
       _uploading = true; // Show progress indicator
@@ -54,6 +56,7 @@ class _AddHomePageState extends State<AddHomePage> {
         'bathrooms': _bathrooms,
         'balconies': _balconies,
         'location': _locationController.text,
+        'description': _descriptionController.text,
         'images': imageUrls,
       });
 
@@ -69,6 +72,7 @@ class _AddHomePageState extends State<AddHomePage> {
         _balconies = 0;
         _images.clear();
         _locationController.clear();
+        _descriptionController.clear();
         _uploading = false; // Hide progress indicator
       });
     } catch (e) {
@@ -76,7 +80,6 @@ class _AddHomePageState extends State<AddHomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload details: $e')),
       );
-
       setState(() {
         _uploading = false; // Hide progress indicator
       });
@@ -94,6 +97,7 @@ class _AddHomePageState extends State<AddHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Dropdown for house type
             DropdownButtonFormField<String>(
               value: _houseType,
               hint: Text('Select House Type'),
@@ -110,6 +114,8 @@ class _AddHomePageState extends State<AddHomePage> {
               },
             ),
             SizedBox(height: 16.0),
+
+            // Input for location
             TextFormField(
               controller: _locationController,
               decoration: InputDecoration(
@@ -117,100 +123,64 @@ class _AddHomePageState extends State<AddHomePage> {
                 border: OutlineInputBorder(),
               ),
             ),
+            SizedBox(height: 16.0),
+
+            // Input for description
+            TextFormField(
+              controller: _descriptionController,
+              decoration: InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 5,
+            ),
+            SizedBox(height: 16.0),
+
+            // Bedrooms, Bathrooms, Balconies input
             if (_houseType == 'Family Flat' || _houseType == 'Sub-late Room')
               Column(
                 children: [
+                  _buildCounterRow('Bedrooms', _bedrooms, () {
+                    setState(() {
+                      if (_bedrooms > 1) _bedrooms--;
+                    });
+                  }, () {
+                    setState(() {
+                      _bedrooms++;
+                    });
+                  }),
                   SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Bedrooms: $_bedrooms'),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.remove),
-                            onPressed: () {
-                              setState(() {
-                                if (_bedrooms > 1) _bedrooms--;
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              setState(() {
-                                _bedrooms++;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  _buildCounterRow('Bathrooms', _bathrooms, () {
+                    setState(() {
+                      if (_bathrooms > 1) _bathrooms--;
+                    });
+                  }, () {
+                    setState(() {
+                      _bathrooms++;
+                    });
+                  }),
                   SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Bathrooms: $_bathrooms'),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.remove),
-                            onPressed: () {
-                              setState(() {
-                                if (_bathrooms > 1) _bathrooms--;
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              setState(() {
-                                _bathrooms++;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Balconies: $_balconies'),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.remove),
-                            onPressed: () {
-                              setState(() {
-                                if (_balconies > 0) _balconies--;
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              setState(() {
-                                _balconies++;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  _buildCounterRow('Balconies', _balconies, () {
+                    setState(() {
+                      if (_balconies > 0) _balconies--;
+                    });
+                  }, () {
+                    setState(() {
+                      _balconies++;
+                    });
+                  }),
                 ],
               ),
             SizedBox(height: 16.0),
+
+            // Image picking button
             ElevatedButton(
-              onPressed: () async {
-                await _getImage(ImageSource.gallery);
-              },
-              child: Text('Add Image'),
+              onPressed: _getImages, // Change to _getImages
+              child: Text('Add Images'),
             ),
             SizedBox(height: 16.0),
+
+            // Display selected images
             _images.isNotEmpty
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -224,6 +194,8 @@ class _AddHomePageState extends State<AddHomePage> {
                   )
                 : Container(),
             SizedBox(height: 16.0),
+
+            // Upload button
             ElevatedButton(
               onPressed: _uploadDetails,
               child: _uploading
@@ -235,10 +207,27 @@ class _AddHomePageState extends State<AddHomePage> {
       ),
     );
   }
-}
 
-void main() {
-  runApp(MaterialApp(
-    home: AddHomePage(),
-  ));
+  // Reusable widget for bedroom, bathroom, and balcony counters
+  Widget _buildCounterRow(String label, int count, VoidCallback onDecrement,
+      VoidCallback onIncrement) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('$label: $count'),
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.remove),
+              onPressed: onDecrement,
+            ),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: onIncrement,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
