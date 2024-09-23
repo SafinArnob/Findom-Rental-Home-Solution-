@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       String fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
       Reference storageReference =
-      FirebaseStorage.instance.ref().child('profile_images/$fileName');
+          FirebaseStorage.instance.ref().child('profile_images/$fileName');
       UploadTask uploadTask = storageReference.putFile(file);
       TaskSnapshot taskSnapshot = await uploadTask;
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
@@ -144,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     backgroundImage: _imageUrl != null
                         ? NetworkImage(_imageUrl!)
                         : const AssetImage('assets/images/image1.png')
-                    as ImageProvider,
+                            as ImageProvider,
                   ),
                   Positioned(
                     bottom: 0,
@@ -190,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Theme.of(context).primaryColor,
                   shape: const StadiumBorder(),
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
                 child: const Text(
                   'Edit your profile',
@@ -239,12 +239,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileMenu(
-      BuildContext context, {
-        required String title,
-        required IconData icon,
-        required VoidCallback onTap,
-        Color? textColor,
-      }) {
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? textColor,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(
