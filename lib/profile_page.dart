@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'auth_pages/login_page.dart';
 import 'root_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -126,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      RootPage(), // Corrected class name to HomePage
+                      RootPage(), // Replace this with your desired root/home page
                 ),
               );
             }),
@@ -272,7 +273,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RootPage(),
+                  builder: (context) => LoginPage(), // Navigate to LoginPage
                 ),
               );
             },

@@ -1,9 +1,64 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'add_home.dart'; // Import the AddHomePage
 
-class DrawerMenu extends StatelessWidget {
+class DrawerMenu extends StatefulWidget {
   const DrawerMenu({super.key});
+
+  @override
+  _DrawerMenuState createState() => _DrawerMenuState();
+}
+
+class _DrawerMenuState extends State<DrawerMenu> {
+  String? _imageUrl;
+  String? _email;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        setState(() {
+          _email = 'No user is authenticated';
+          _imageUrl = null;
+        });
+        return;
+      }
+
+      // Fetch the document from Firestore for the current user
+      DocumentSnapshot<Map<String, dynamic>> userData = await FirebaseFirestore
+          .instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userData.exists) {
+        setState(() {
+          _email = user.email;
+          _imageUrl = userData.data()?['profile_picture'];
+        });
+      } else {
+        setState(() {
+          _email = 'No user data found';
+          _imageUrl = null;
+        });
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      setState(() {
+        _email = 'Error fetching data';
+        _imageUrl = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +75,15 @@ class DrawerMenu extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/images/image1.png'),
+                  backgroundImage: _imageUrl != null
+                      ? NetworkImage(_imageUrl!)
+                      : const AssetImage('assets/images/image1.png')
+                          as ImageProvider,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
-                  'example@email.com',
-                  style: TextStyle(
+                  _email ?? 'Loading...',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                   ),
@@ -34,9 +92,9 @@ class DrawerMenu extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading:
-                Icon(Icons.add_home_work_outlined), // Icon for Rent Your Home
-            title: Text('Rent Your Home'),
+            leading: const Icon(
+                Icons.add_home_work_outlined), // Icon for Rent Your Home
+            title: const Text('Rent Your Home'),
             onTap: () {
               Navigator.pop(context); // Close the drawer
               Navigator.push(
