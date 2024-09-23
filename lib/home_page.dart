@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'details_page.dart';
-import 'offer_list.dart'; // Ensure this file exists and is properly set up
+import 'offer_list.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,7 +12,20 @@ class HomePage extends StatelessWidget {
     final querySnapshot =
         await FirebaseFirestore.instance.collection('homes').get();
     return querySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
+        .map((doc) => {
+              'imagePath': doc['images'][0], // Ensure Firestore field exists
+              'houseType': doc['houseType'], // Ensure Firestore field exists
+              'location': doc['location'], // Ensure Firestore field exists
+              'bedrooms':
+                  (doc['bedrooms'] as num).toInt(), // Ensure this is int
+              'bathrooms':
+                  (doc['bathrooms'] as num).toInt(), // Ensure this is int
+              'balconies':
+                  (doc['balconies'] as num).toInt(), // Ensure this is int
+              'description':
+                  doc['description'], // Ensure Firestore field exists
+              'price': (doc['price'] as num).toInt(), // Ensure price is int
+            })
         .toList();
   }
 
@@ -85,17 +98,14 @@ class HomePage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DetailsPage(
-                                  imagePath: item['images']
-                                      [0], // Firestore image
-                                  name: item['houseType'], // Firestore field
-                                  location: item['location'], // Firestore field
-                                  bedrooms: item['bedrooms'], // Firestore field
-                                  bathrooms:
-                                      item['bathrooms'], // Firestore field
-                                  balconies:
-                                      item['balconies'], // Firestore field
-                                  description:
-                                      item['description'], // Pass description
+                                  imagePath: item['imagePath'],
+                                  name: item['houseType'],
+                                  location: item['location'],
+                                  bedrooms: item['bedrooms'],
+                                  bathrooms: item['bathrooms'],
+                                  balconies: item['balconies'],
+                                  description: item['description'],
+                                  price: item['price'], // Pass price as int
                                 ),
                               ),
                             );
@@ -103,7 +113,7 @@ class HomePage extends StatelessWidget {
                           child: Column(
                             children: [
                               Image.network(
-                                item['images'][0], // Ensure this URL is valid
+                                item['imagePath'],
                                 height: 200,
                                 width: 200,
                                 fit: BoxFit.fill,
@@ -131,19 +141,29 @@ class HomePage extends StatelessWidget {
                                   child: Text(
                                     item['location'],
                                     style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              5.heightBox,
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
+                                  child: Text(
+                                    '\$${item['price'].toString()}', // Display price as int
+                                    style: const TextStyle(
                                       color: Colors.black,
-                                      fontSize: 20,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
                             ],
-                          )
-                              .box
-                              .roundedSM
-                              .white
-                              .margin(const EdgeInsets.symmetric(horizontal: 4))
-                              .make(),
+                          ).box.white.roundedSM.outerShadowSm.make(),
                         );
                       },
                     ),

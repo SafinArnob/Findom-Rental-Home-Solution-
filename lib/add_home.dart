@@ -16,6 +16,7 @@ class _AddHomePageState extends State<AddHomePage> {
   int _bathrooms = 1;
   int _balconies = 0;
   List<File> _images = [];
+  double _price = 0; // Default price starts from 0 TK
   final picker = ImagePicker();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -23,7 +24,7 @@ class _AddHomePageState extends State<AddHomePage> {
 
   // Function to pick multiple images
   Future<void> _getImages() async {
-    final pickedFiles = await picker.pickMultiImage(); // Use pickMultiImage
+    final pickedFiles = await picker.pickMultiImage();
     if (pickedFiles != null) {
       setState(() {
         _images.addAll(
@@ -35,7 +36,7 @@ class _AddHomePageState extends State<AddHomePage> {
   // Function to upload details including images and description to Firestore
   Future<void> _uploadDetails() async {
     setState(() {
-      _uploading = true; // Show progress indicator
+      _uploading = true;
     });
 
     try {
@@ -58,6 +59,7 @@ class _AddHomePageState extends State<AddHomePage> {
         'location': _locationController.text,
         'description': _descriptionController.text,
         'images': imageUrls,
+        'price': _price, // Include price in the uploaded details
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,15 +75,15 @@ class _AddHomePageState extends State<AddHomePage> {
         _images.clear();
         _locationController.clear();
         _descriptionController.clear();
-        _uploading = false; // Hide progress indicator
+        _price = 0; // Reset price to 0 TK
+        _uploading = false;
       });
     } catch (e) {
-      // Error handling
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload details: $e')),
       );
       setState(() {
-        _uploading = false; // Hide progress indicator
+        _uploading = false;
       });
     }
   }
@@ -173,9 +175,28 @@ class _AddHomePageState extends State<AddHomePage> {
               ),
             SizedBox(height: 16.0),
 
+            // Slider for price selection
+            Text('Price: ${_price.toStringAsFixed(2)} TK'),
+            Container(
+              width: double.infinity, // Make the slider full width
+              child: Slider(
+                value: _price,
+                min: 0, // Start from 0 TK
+                max: 50000, // Adjust maximum as necessary
+                onChanged: (double value) {
+                  setState(() {
+                    _price = value;
+                  });
+                },
+                divisions: 100, // Increased divisions for more control
+                label: '${_price.round()} TK',
+              ),
+            ),
+            SizedBox(height: 16.0),
+
             // Image picking button
             ElevatedButton(
-              onPressed: _getImages, // Change to _getImages
+              onPressed: _getImages,
               child: Text('Add Images'),
             ),
             SizedBox(height: 16.0),
