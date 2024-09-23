@@ -10,9 +10,9 @@ class DetailsPage extends StatelessWidget {
   final int bedrooms;
   final int bathrooms;
   final int balconies;
-  final String description; // Add this line
+  final String description;
+  final int price; // Change to int
 
-  // Constructor to accept details
   DetailsPage({
     required this.imagePath,
     required this.name,
@@ -20,7 +20,8 @@ class DetailsPage extends StatelessWidget {
     required this.bathrooms,
     required this.balconies,
     required this.description,
-    required this.location, // Include location here
+    required this.location,
+    required this.price, // Include price here
   });
 
   @override
@@ -35,7 +36,7 @@ class DetailsPage extends StatelessWidget {
           children: [
             Container(
               width: MediaQuery.of(context).size.width,
-              height: 300, // Adjust the height as per your requirement
+              height: 300,
               child: Image.network(
                 imagePath,
                 fit: BoxFit.cover,
@@ -47,12 +48,6 @@ class DetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /* Text(
-                    name,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10), */
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -79,9 +74,15 @@ class DetailsPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  SizedBox(height: 10),
+                  // Display the price
+                  Text(
+                    'Price: \$${price.toString()}', // Format the price as int
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(height: 20),
                   Text(
-                    description, // Display the description
+                    description,
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -100,6 +101,7 @@ class DetailsPage extends StatelessWidget {
                       bedrooms: bedrooms,
                       bathrooms: bathrooms,
                       balconies: balconies,
+                      price: price, // Save price as int
                     );
                     Provider.of<FavouritesProvider>(context, listen: false)
                         .addFavourite(item);
@@ -117,27 +119,20 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  // Widget to create a standardized info box
   Widget _buildInfoBox(BuildContext context, String label, String value) {
-    // Get the screen width
     double screenWidth = MediaQuery.of(context).size.width;
-
-    // Determine the font size based on screen width
-    double valueFontSize =
-        screenWidth < 400 ? 16 : 18; // Smaller font for narrow screens
-    double labelFontSize =
-        screenWidth < 400 ? 14 : 16; // Smaller font for narrow screens
+    double valueFontSize = screenWidth < 400 ? 16 : 18;
+    double labelFontSize = screenWidth < 400 ? 14 : 16;
 
     return Expanded(
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.0), // Reduce vertical padding
+        padding: EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center, // Center the contents vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               value,

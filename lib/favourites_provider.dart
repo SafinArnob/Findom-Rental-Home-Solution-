@@ -7,6 +7,7 @@ class FavouriteItem {
   final int bedrooms;
   final int bathrooms;
   final int balconies;
+  final int price; // Added price field
 
   FavouriteItem({
     required this.imagePath,
@@ -15,6 +16,7 @@ class FavouriteItem {
     required this.bedrooms,
     required this.bathrooms,
     required this.balconies,
+    required this.price, // Initialize price
   });
 }
 
@@ -23,11 +25,13 @@ class FavouritesProvider with ChangeNotifier {
 
   List<FavouriteItem> get favouriteItems => _favouriteItems;
 
+  // Add item to favourites
   void addFavourite(FavouriteItem item) {
     _favouriteItems.add(item);
     notifyListeners();
   }
 
+  // Remove item from favourites
   void removeFavourite(FavouriteItem item) {
     _favouriteItems.remove(item);
     notifyListeners();
