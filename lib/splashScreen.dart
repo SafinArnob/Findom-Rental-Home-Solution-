@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rental_home_solution/auth_pages/login_page.dart';
+import 'package:rental_home_solution/root_page.dart';
 
 import 'auth_pages/sign_up_page.dart';
 
@@ -20,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              SignupPage(), // Corrected class name to HomePage
+          RootPage(), // Corrected class name to HomePage
         ),
       );
     });

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Placeholder pages for navigation
 class FamilyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -58,120 +57,53 @@ class CategoryPage extends StatefulWidget {
   State<CategoryPage> createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage>
-    with SingleTickerProviderStateMixin {
-  bool _showOverlay = false;
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
-
+class _CategoryPageState extends State<CategoryPage> {
   // List of options with icons, labels, and routes
   final List<Map<String, dynamic>> options = [
     {'icon': Icons.family_restroom, 'label': 'Family', 'route': FamilyPage()},
     {'icon': Icons.person, 'label': 'Bachelors', 'route': BachelorsPage()},
     {'icon': Icons.house_siding, 'label': 'Sublets', 'route': SubletsPage()},
     {'icon': Icons.cleaning_services, 'label': 'Maid', 'route': MaidPage()},
-    {
-      'icon': Icons.miscellaneous_services,
-      'label': 'Others',
-      'route': OthersPage()
-    },
+    {'icon': Icons.miscellaneous_services, 'label': 'Others', 'route': OthersPage()},
   ];
-
-  // List of options for the 3-dot menu
-  final List<Map<String, dynamic>> menuOptions = [
-    {'icon': Icons.shopping_cart, 'label': 'Cart'},
-    {'icon': Icons.star, 'label': 'Rating'},
-    {'icon': Icons.favorite, 'label': 'Favourite'},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _offsetAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  void _toggleOverlay() {
-    setState(() {
-      _showOverlay = !_showOverlay;
-      if (_showOverlay) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Category'),
+        title: const Text('Categories'),
+        backgroundColor: Colors.cyan,
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // First row with 3 icons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: options.take(3).map((option) {
-                          return OptionCard(
-                            icon: option['icon'],
-                            label: option['label'],
-                            route: option['route'],
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 32), // Gap between rows
-                      // Second row with 2 centered icons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Spacer(),
-                          OptionCard(
-                            icon: options[3]['icon'],
-                            label: options[3]['label'],
-                            route: options[3]['route'],
-                          ),
-                          const Spacer(flex: 2),
-                          OptionCard(
-                            icon: options[4]['icon'],
-                            label: options[4]['label'],
-                            route: options[4]['route'],
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                    ],
-                  ),
+      body: Container(
+        color: Colors.cyan[50],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Logo
+            Image.asset(
+              'assets/images/img.png', // Replace with your logo image path
+              height: 150.0, // Increased height for the logo
+            ),
+            const SizedBox(height: 20), // Space between logo and buttons
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
                 ),
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  return OptionCard(
+                    icon: options[index]['icon'],
+                    label: options[index]['label'],
+                    route: options[index]['route'],
+                  );
+                },
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: OptionCard(
-                  icon: Icons.local_offer,
-                  label: 'Hot Deals',
-                  route: Container(), // Add route for 'Hot Deals' if needed
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -182,8 +114,7 @@ class OptionCard extends StatelessWidget {
   final String label;
   final Widget route;
 
-  const OptionCard(
-      {required this.icon, required this.label, required this.route});
+  const OptionCard({required this.icon, required this.label, required this.route});
 
   @override
   Widget build(BuildContext context) {
@@ -198,32 +129,29 @@ class OptionCard extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          width: 100,
-          height: 100,
           decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            color: Colors.white,
+            color: Colors.cyan, // Button color set to cyan
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.3),
                 spreadRadius: 3,
                 blurRadius: 5,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
+          height: 120, // Increased height of the button
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: Colors.deepPurple),
+              Icon(icon, size: 40, color: Colors.white), // Increased icon size
               const SizedBox(height: 8),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ],
           ),

@@ -122,15 +122,10 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: [
         Image.asset(
-          'assets/images/login_logo.png', // House logo image asset
+          'assets/images/img_1.png', // House logo image asset
           height: 150, // Increased height of the image
         ),
-        const SizedBox(height: 10),
-        const Text(
-          "Let comfortably book your house with FINDOM",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12), // Reduced font size and removed bold
-        ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -142,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
         TextField(
           controller: _usernameController,
           decoration: InputDecoration(
-            hintText: "Email or Mobile Number",
+            hintText: "Email",
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide.none,

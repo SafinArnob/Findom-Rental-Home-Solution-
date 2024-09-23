@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rental_home_solution/auth_pages/login_page.dart';
 
-import 'auth_pages/login_page.dart';
 import 'root_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -41,7 +40,6 @@ class _ProfilePageState extends State<ProfilePage> {
         return;
       }
 
-      // Fetch the document from Firestore for the current user
       DocumentSnapshot<Map<String, dynamic>> userData = await FirebaseFirestore
           .instance
           .collection('users')
@@ -49,7 +47,6 @@ class _ProfilePageState extends State<ProfilePage> {
           .get();
 
       if (userData.exists) {
-        print('User Data: ${userData.data()}'); // Log the data
         setState(() {
           _name = userData.data()?['username'] ?? 'No Name';
           _email = userData.data()?['email'] ?? 'No Email';
@@ -64,7 +61,6 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } catch (e) {
-      print('Error fetching user data: $e');
       setState(() {
         _name = 'Error fetching data';
         _email = 'Error fetching data';
@@ -94,7 +90,6 @@ class _ProfilePageState extends State<ProfilePage> {
         _imageUrl = downloadUrl;
       });
 
-      // Update Firestore with the new profile picture URL
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await FirebaseFirestore.instance
@@ -102,10 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
             .doc(user.uid)
             .update({'profile_picture': downloadUrl});
       }
-
-      print('Image uploaded and Firestore updated successfully.');
     } catch (e) {
-      print('Error uploading image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to upload image. Please try again later.'),
@@ -117,121 +109,138 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      RootPage(), // Replace this with your desired root/home page
-                ),
-              );
-            }),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RootPage(),
+              ),
+            );
+          },
+        ),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.black, // Black color for the title
+          ),
+        ),
+        backgroundColor: Colors.white, // AppBar background color
+        elevation: 0, // Remove shadow
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _imageUrl != null
-                        ? NetworkImage(_imageUrl!)
-                        : const AssetImage('assets/images/image1.png')
-                    as ImageProvider,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: _pickImage,
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.black,
-                          size: 20,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.cyan.shade100, // Light cyan
+              Colors.white, // White
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _imageUrl != null
+                          ? NetworkImage(_imageUrl!)
+                          : const AssetImage('assets/images/image1.png')
+                      as ImageProvider,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.cyan, // Circle color
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.white, // Pen icon color
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _name ?? 'Loading...',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  _email ?? 'Loading...',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  _mobile ?? 'Loading...',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                ElevatedButton(
+                  onPressed: () {}, // Implement editing function here
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.cyan, // Button color
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                _name ?? 'Loading...',
-                style: Theme.of(context).textTheme.headline6,
-              ),
-              const SizedBox(height: 5),
-              Text(
-                _email ?? 'Loading...',
-                style: Theme.of(context).textTheme.subtitle2,
-              ),
-              const SizedBox(height: 5),
-              Text(
-                _mobile ?? 'Loading...',
-                style: Theme.of(context).textTheme.subtitle2,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  shape: const StadiumBorder(),
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  child: const Text(
+                    'Edit Profile', // Button text
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-                child: const Text(
-                  'Edit your profile',
-                  style: TextStyle(color: Colors.white),
+                const SizedBox(height: 30),
+                _buildProfileMenu(
+                  context,
+                  title: 'Privacy',
+                  icon: Icons.lock,
+                  onTap: () {},
                 ),
-              ),
-              const SizedBox(height: 30),
-              _buildProfileMenu(
-                context,
-                title: 'Privacy',
-                icon: Icons.lock,
-                onTap: () {},
-              ),
-              _buildProfileMenu(
-                context,
-                title: 'Help & Support',
-                icon: Icons.help,
-                onTap: () {},
-              ),
-              _buildProfileMenu(
-                context,
-                title: 'Settings',
-                icon: Icons.settings,
-                onTap: () {},
-              ),
-              _buildProfileMenu(
-                context,
-                title: 'Invite a Friend',
-                icon: Icons.group_add,
-                onTap: () {},
-              ),
-              _buildProfileMenu(
-                context,
-                title: 'Logout',
-                icon: Icons.logout,
-                onTap: () {
-                  _showLogoutDialog(context);
-                },
-                textColor: Colors.red,
-              ),
-            ],
+                _buildProfileMenu(
+                  context,
+                  title: 'Help & Support',
+                  icon: Icons.help,
+                  onTap: () {},
+                ),
+                _buildProfileMenu(
+                  context,
+                  title: 'Settings',
+                  icon: Icons.settings,
+                  onTap: () {},
+                ),
+                _buildProfileMenu(
+                  context,
+                  title: 'Invite a Friend',
+                  icon: Icons.group_add,
+                  onTap: () {},
+                ),
+                _buildProfileMenu(
+                  context,
+                  title: 'Logout',
+                  icon: Icons.logout,
+                  onTap: () {
+                    _showLogoutDialog(context);
+                  },
+                  textColor: Colors.red,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,12 +282,12 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LoginPage(), // Navigate to LoginPage
+                  builder: (context) => LoginPage(),
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.cyan[300],
             ),
             child: const Text('Yes'),
           ),
